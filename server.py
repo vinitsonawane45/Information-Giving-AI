@@ -31,7 +31,7 @@ app.add_middleware(
 cache = TTLCache(maxsize=100, ttl=3600)
 
 # Groq API configuration
-GROQ_API_KEY = "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"
+GROQ_API_KEY = "YOUR GROQ API KEY"
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 class Query(BaseModel):
