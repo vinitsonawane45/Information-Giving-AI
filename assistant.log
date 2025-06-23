@@ -1,0 +1,95 @@
+2025-04-29 00:13:53,990 - ERROR - Ollama API error: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=60)
+2025-04-29 00:21:56,059 - ERROR - Ollama API error: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=60)
+2025-04-29 00:23:37,478 - ERROR - Ollama API error: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=60)
+2025-04-29 00:31:49,018 - INFO - Calling Ollama API for query: hi, model: mistral
+2025-04-29 00:32:51,100 - ERROR - Ollama API error: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=60)
+2025-04-29 00:32:51,121 - INFO - Calling Ollama API for query: hello, model: llama3.1
+2025-04-29 00:33:53,158 - ERROR - Ollama API error: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=60)
+2025-04-29 00:34:00,583 - INFO - Calling Ollama API for query: hi, model: mixtral:8x7b
+2025-04-29 00:34:02,647 - ERROR - Ollama API error: 404 Client Error: Not Found for url: http://localhost:11434/api/generate
+2025-04-29 11:08:15,409 - INFO - Calling Ollama API for query: hi, model: mixtral:8x7b
+2025-04-29 11:08:17,491 - ERROR - Ollama API error: 404 Client Error: Not Found for url: http://localhost:11434/api/generate
+2025-04-29 11:27:02,060 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama3-8b-8192
+2025-04-29 11:27:03,241 - INFO - Successfully processed query: Explain neural networks with model: llama3-8b-8192
+2025-04-29 11:31:15,932 - ERROR - Server error: 400: Invalid model. Choose from ['llama3-8b-8192', 'mixtral-8x7b-32768', 'llama3-70b-8192', 'gemma2-9b-it', 'llama3-grok-8b-8192']
+2025-04-29 11:31:23,626 - ERROR - Server error: 400: Invalid model. Choose from ['llama3-8b-8192', 'mixtral-8x7b-32768', 'llama3-70b-8192', 'gemma2-9b-it', 'llama3-grok-8b-8192']
+2025-04-29 11:31:35,676 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama3-8b-8192
+2025-04-29 11:31:36,748 - INFO - Successfully processed query: hi with model: llama3-8b-8192
+2025-04-29 11:31:52,732 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama3-8b-8192
+2025-04-29 11:31:53,539 - INFO - Successfully processed query: how are you with model: llama3-8b-8192
+2025-04-29 11:32:09,099 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama3-8b-8192
+2025-04-29 11:32:10,489 - INFO - Successfully processed query: what was the your features with model: llama3-8b-8192
+2025-04-29 11:32:49,667 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama3-grok-8b-8192
+2025-04-29 11:32:50,793 - ERROR - Groq API error: 404 Client Error: Not Found for url: https://api.groq.com/openai/v1/chat/completions, URL attempted: https://api.groq.com/openai/v1/chat/completions
+2025-04-29 11:33:37,252 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama3-grok-8b-8192
+2025-04-29 11:33:37,379 - ERROR - Groq API error: 404 Client Error: Not Found for url: https://api.groq.com/openai/v1/chat/completions, URL attempted: https://api.groq.com/openai/v1/chat/completions
+2025-04-29 11:33:49,203 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: gemma2-9b-it
+2025-04-29 11:33:50,074 - INFO - Successfully processed query: hello with model: gemma2-9b-it
+2025-04-29 11:37:02,967 - INFO - Cache hit for query: hi
+2025-04-29 11:37:34,432 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama3-70b-8192
+2025-04-29 11:37:36,487 - INFO - Successfully processed query: what type of maths problem you will be solve with model: llama3-70b-8192
+2025-04-29 11:38:36,241 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: gemma2-9b-it
+2025-04-29 11:38:37,207 - INFO - Successfully processed query: hello,what is your name ? and tell me about yourself with model: gemma2-9b-it
+2025-04-29 11:39:06,435 - ERROR - Server error: 400: Invalid model. Choose from ['llama3-8b-8192', 'mixtral-8x7b-32768', 'llama3-70b-8192', 'gemma2-9b-it', 'llama3-grok-8b-8192']
+2025-04-29 11:39:27,902 - ERROR - Server error: 400: Invalid model. Choose from ['llama3-8b-8192', 'mixtral-8x7b-32768', 'llama3-70b-8192', 'gemma2-9b-it', 'llama3-grok-8b-8192']
+2025-04-29 11:41:43,552 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama3-8b-8192
+2025-04-29 11:41:44,601 - INFO - Successfully processed query: hi with model: llama3-8b-8192
+2025-04-29 11:42:00,373 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama-4-scout-17b-16e-instruct
+2025-04-29 11:42:00,480 - ERROR - Groq API error: 404 Client Error: Not Found for url: https://api.groq.com/openai/v1/chat/completions, URL attempted: https://api.groq.com/openai/v1/chat/completions
+2025-04-29 11:42:11,116 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama-4-maverick-17b-128e-instruct
+2025-04-29 11:42:11,238 - ERROR - Groq API error: 404 Client Error: Not Found for url: https://api.groq.com/openai/v1/chat/completions, URL attempted: https://api.groq.com/openai/v1/chat/completions
+2025-04-29 11:42:22,338 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama3-grok-8b-8192
+2025-04-29 11:42:22,452 - ERROR - Groq API error: 404 Client Error: Not Found for url: https://api.groq.com/openai/v1/chat/completions, URL attempted: https://api.groq.com/openai/v1/chat/completions
+2025-04-29 11:42:33,842 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: gemma2-9b-it
+2025-04-29 11:42:34,675 - INFO - Successfully processed query: hi with model: gemma2-9b-it
+2025-04-29 11:43:44,400 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama-3.3-70b-versatile
+2025-04-29 11:43:45,847 - INFO - Successfully processed query: hi with model: llama-3.3-70b-versatile
+2025-04-29 11:43:55,503 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama-4-scout-17b-16e-instruct
+2025-04-29 11:43:55,604 - ERROR - Groq API error: 404 Client Error: Not Found for url: https://api.groq.com/openai/v1/chat/completions, URL attempted: https://api.groq.com/openai/v1/chat/completions
+2025-04-29 11:44:04,024 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama-4-maverick-17b-128e-instruct
+2025-04-29 11:44:04,156 - ERROR - Groq API error: 404 Client Error: Not Found for url: https://api.groq.com/openai/v1/chat/completions, URL attempted: https://api.groq.com/openai/v1/chat/completions
+2025-04-29 11:44:14,126 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama3-grok-8b-8192
+2025-04-29 11:44:14,250 - ERROR - Groq API error: 404 Client Error: Not Found for url: https://api.groq.com/openai/v1/chat/completions, URL attempted: https://api.groq.com/openai/v1/chat/completions
+2025-04-29 11:45:06,249 - INFO - Cache hit for query: hi
+2025-04-29 11:52:18,295 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama-4-scout-17b-16e-instruct
+2025-04-29 11:52:19,491 - ERROR - Groq API error: 404 Client Error: Not Found for url: https://api.groq.com/openai/v1/chat/completions, URL attempted: https://api.groq.com/openai/v1/chat/completions
+2025-04-29 11:54:49,397 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama-3.3-70b-versatile
+2025-04-29 11:54:50,841 - INFO - Successfully processed query: hi with model: llama-3.3-70b-versatile
+2025-04-29 11:55:12,869 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama-3.3-70b-versatile
+2025-04-29 11:55:14,803 - INFO - Successfully processed query: give me the python hello world code with model: llama-3.3-70b-versatile
+2025-04-29 12:02:26,439 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama3-8b-8192
+2025-04-29 12:02:27,243 - INFO - Successfully processed query: hi with model: llama3-8b-8192
+2025-04-29 12:05:29,367 - INFO - Cache hit for query: hi
+2025-04-29 12:10:51,010 - INFO - Cache hit for query: hi
+2025-04-29 12:14:40,349 - INFO - Cache hit for query: hi
+2025-04-29 12:17:11,038 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama3-70b-8192
+2025-04-29 12:17:12,449 - INFO - Successfully processed query: how are you with model: llama3-70b-8192
+2025-04-29 12:19:21,840 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama-3.3-70b-versatile
+2025-04-29 12:19:23,273 - INFO - Successfully processed query: hello with model: llama-3.3-70b-versatile
+2025-04-29 12:19:33,370 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama-3.3-70b-versatile
+2025-04-29 12:19:34,842 - INFO - Successfully processed query: how are you with model: llama-3.3-70b-versatile
+2025-04-29 12:20:00,635 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama3-8b-8192
+2025-04-29 12:20:01,671 - INFO - Successfully processed query: hello with model: llama3-8b-8192
+2025-04-29 12:20:21,275 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama3-8b-8192
+2025-04-29 12:20:22,461 - INFO - Successfully processed query: tell me what features should you have with model: llama3-8b-8192
+2025-04-29 12:20:47,368 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama3-70b-8192
+2025-04-29 12:20:49,393 - INFO - Successfully processed query: what type of problem should you solve with model: llama3-70b-8192
+2025-04-29 12:21:08,575 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: gemma2-9b-it
+2025-04-29 12:21:09,157 - INFO - Successfully processed query: hello how are you with model: gemma2-9b-it
+2025-04-29 12:21:31,008 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: gemma2-9b-it
+2025-04-29 12:21:32,297 - INFO - Successfully processed query: can you tell me the what features should you have with model: gemma2-9b-it
+2025-04-29 12:23:54,328 - INFO - Cache hit for query: hi
+2025-05-14 23:02:28,936 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama3-8b-8192
+2025-05-14 23:02:29,952 - INFO - Successfully processed query: hello with model: llama3-8b-8192
+2025-05-14 23:15:45,064 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama3-8b-8192
+2025-05-14 23:15:48,450 - INFO - Successfully processed query: hello with model: llama3-8b-8192
+2025-05-14 23:51:35,112 - INFO - Cache hit for query: hello
+2025-05-14 23:53:14,231 - INFO - Cache hit for query: hello
+2025-05-14 23:59:49,820 - INFO - Cache hit for query: hello
+2025-05-15 00:00:07,413 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama3-8b-8192
+2025-05-15 00:00:08,176 - INFO - Successfully processed query: how are you with model: llama3-8b-8192
+2025-05-15 00:04:53,366 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama3-8b-8192
+2025-05-15 00:04:54,015 - INFO - Successfully processed query: hi with model: llama3-8b-8192
+2025-05-15 00:06:38,592 - INFO - Cache hit for query: hello
+2025-05-15 00:06:59,871 - INFO - Attempting to call Groq API at: https://api.groq.com/openai/v1/chat/completions with model: llama3-8b-8192
+2025-05-15 00:07:00,842 - INFO - Successfully processed query: what should you can do with model: llama3-8b-8192

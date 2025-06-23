@@ -1,0 +1,951 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro AI Assistant</title>
+    <link rel="icon" href="/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.0.0/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        .chat-container {
+            max-height: 70vh;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .sidebar {
+            transition: transform 0.3s ease;
+        }
+        .sidebar-hidden {
+            transform: translateX(-100%);
+        }
+        .skeleton {
+            background: linear-gradient(90deg, #e5e7eb 25%, #d1d5db 50%, #e5e7eb 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .typing::after {
+            content: '|';
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+        .dark .chat-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .dark .chat-container::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+        .markdown-body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+        }
+        .markdown-body pre {
+            background: #2d2d2d;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        .message {
+            transition: all 0.3s ease;
+        }
+        .message:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .modal {
+            backdrop-filter: blur(5px);
+        }
+        button:hover {
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-gray-300 dark:from-gray-900 dark:to-gray-700 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-300" data-accent="blue">
+    <header class="w-full bg-white/80 dark:bg-gray-800/80 shadow-lg p-4 flex justify-between items-center backdrop-blur-md">
+        <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">Pro AI Assistant</h1>
+        <div class="flex space-x-2">
+            <button id="toggleSidebar" class="p-2 rounded-full bg-gray-200/50 dark:bg-gray-700/50 hover:bg-gray-300 dark:hover:bg-gray-600" aria-label="Toggle history sidebar">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
+            <button id="settingsToggle" class="p-2 rounded-full bg-gray-200/50 dark:bg-gray-700/50 hover:bg-gray-300 dark:hover:bg-gray-600" aria-label="Open settings">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.573-1.066z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+            </button>
+        </div>
+    </header>
+    <div class="flex-1 flex w-full max-w-7xl mx-auto p-4 space-x-4">
+        <aside id="sidebar" class="w-80 bg-white/80 dark:bg-gray-800/80 rounded-lg shadow-lg p-4 sidebar backdrop-blur-md">
+            <h2 class="text-xl font-semibold mb-4">Query History</h2>
+            <input type="text" id="historySearch" placeholder="Search history..." class="w-full p-2 border dark:border-gray-700 rounded-lg mb-4 dark:bg-gray-700/50" aria-label="Search history">
+            <div id="historyContainer" class="space-y-2 max-h-[70vh] overflow-y-auto"></div>
+            <button onclick="exportHistory()" class="w-full mt-4 p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Export History (PDF)</button>
+        </aside>
+        <main class="flex-1 flex flex-col space-y-4">
+            <div class="bg-white/80 dark:bg-gray-800/80 rounded-lg shadow-lg p-6 chat-container backdrop-blur-md">
+                <div id="chatMessages" class="space-y-4"></div>
+            </div>
+            <div class="flex space-x-2">
+                <select id="modelSelect" class="p-3 border dark:border-gray-700 rounded-lg dark:bg-gray-700/50" aria-label="Select AI model">
+                    <option value="llama3-8b-8192">LLaMA3 8B (Versatile)</option>
+                    <option value="llama3-70b-8192">LLaMA3 70B (Reasoning)</option>
+                    <option value="gemma2-9b-it">Gemma2 9B (Conversational)</option>
+                    <option value="llama-3.3-70b-versatile">LLaMA 3.3 70B (Versatile)</option>
+        
+                </select>
+                <input type="text" id="queryInput" placeholder="Ask anything (e.g., explain AI, write code)..." class="flex-1 p-3 border dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50" aria-label="Query input">
+                <button onclick="submitQuery()" class="p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Send</button>
+            </div>
+        </main>
+    </div>
+    <div id="settingsModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center modal">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h2 class="text-xl font-semibold mb-4">Settings</h2>
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-2">Theme</label>
+                <button onclick="toggleTheme()" class="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg w-full text-left">Switch to <span id="themeLabel">Dark</span> Mode</button>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-2">Accent Color</label>
+                <select id="accentSelect" class="w-full p-2 border dark:border-gray-700 rounded-lg dark:bg-gray-700">
+                    <option value="blue">Blue</option>
+                    <option value="purple">Purple</option>
+                    <option value="green">Green</option>
+                </select>
+            </div>
+            <button onclick="closeSettings()" class="w-full p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Close</button>
+        </div>
+    </div>
+    <footer class="w-full bg-white/80 dark:bg-gray-800/80 p-4 text-center text-sm backdrop-blur-md">
+        Built with Groq, FastAPI, and Tailwind CSS
+    </footer>
+
+    <script type="module">
+        import { marked } from 'https://cdn.jsdelivr.net/npm/marked@4.0.0/+esm';
+        import hljs from 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/+esm';
+        const { jsPDF } = window.jspdf;
+
+        // State management
+        const store = {
+            history: [],
+            theme: localStorage.getItem('theme') || 'light',
+            accent: localStorage.getItem('accent') || 'blue',
+            setHistory(newHistory) {
+                this.history = newHistory;
+                updateHistory();
+            },
+            setTheme(theme) {
+                this.theme = theme;
+                document.body.classList.toggle('dark', theme === 'dark');
+                localStorage.setItem('theme', theme);
+                document.getElementById('themeLabel').textContent = theme === 'dark' ? 'Light' : 'Dark';
+            },
+            setAccent(accent) {
+                this.accent = accent;
+                document.body.dataset.accent = accent;
+                localStorage.setItem('accent', accent);
+                document.querySelectorAll('button.bg-blue-500').forEach(btn => {
+                    btn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                    btn.classList.add(`bg-${accent}-500`, `hover:bg-${accent}-600`);
+                });
+            }
+        };
+
+        // DOM elements
+        const chatMessages = document.getElementById('chatMessages');
+        const queryInput = document.getElementById('queryInput');
+        const modelSelect = document.getElementById('modelSelect');
+        const historyContainer = document.getElementById('historyContainer');
+        const historySearch = document.getElementById('historySearch');
+        const settingsModal = document.getElementById('settingsModal');
+        const settingsToggle = document.getElementById('settingsToggle');
+        const toggleSidebar = document.getElementById('toggleSidebar');
+        const sidebar = document.getElementById('sidebar');
+        const accentSelect = document.getElementById('accentSelect');
+
+        // Initialize state
+        store.setTheme(store.theme);
+        store.setAccent(store.accent);
+        accentSelect.value = store.accent;
+
+        // Theme toggle
+        window.toggleTheme = () => {
+            store.setTheme(store.theme === 'dark' ? 'light' : 'dark');
+        };
+
+        // Accent color change
+        accentSelect.addEventListener('change', () => {
+            store.setAccent(accentSelect.value);
+        });
+
+        // Settings modal
+        settingsToggle.addEventListener('click', () => {
+            settingsModal.classList.remove('hidden');
+        });
+        window.closeSettings = () => {
+            settingsModal.classList.add('hidden');
+        };
+
+        // Sidebar toggle
+        toggleSidebar.addEventListener('click', () => {
+            sidebar.classList.toggle('sidebar-hidden');
+        });
+
+        // Scroll to bottom
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Add message
+        function addMessage(content, isUser = false, isTyping = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message p-4 rounded-lg ${isUser ? 'bg-blue-100 dark:bg-blue-900/50 ml-auto' : 'bg-gray-100/50 dark:bg-gray-700/50'} max-w-[80%] ${isUser ? 'text-right' : ''} ${isTyping ? 'typing' : ''}`;
+            messageDiv.innerHTML = isUser ? `<p>${content}</p>` : marked.parse(content);
+            chatMessages.appendChild(messageDiv);
+            if (!isTyping) hljs.highlightAll();
+            scrollToBottom();
+            return messageDiv;
+        }
+
+        // Show skeleton loader
+        function showSkeleton() {
+            const skeleton = addMessage(`
+                <div class="skeleton h-4 w-full mb-2"></div>
+                <div class="skeleton h-4 w-3/4 mb-2"></div>
+                <div class="skeleton h-4 w-1/2"></div>
+            `);
+            return skeleton;
+        }
+
+        // Debounced search
+        let searchTimeout;
+        historySearch.addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(updateHistory, 300);
+        });
+
+        // Update history
+        function updateHistory() {
+            historyContainer.innerHTML = '';
+            store.history
+                .filter(item => item.query.toLowerCase().includes(historySearch.value.toLowerCase()))
+                .forEach((item, index) => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'p-3 border-b dark:border-gray-700 cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-700/50 flex justify-between items-center';
+                    historyItem.innerHTML = `
+                        <div>
+                            <p class="font-semibold">Query ${index + 1}: ${item.query}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">${item.response.substring(0, 50)}...</p>
+                        </div>
+                        <button class="p-1 text-yellow-500" onclick="event.stopPropagation(); togglePin(${index})" aria-label="Pin query">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M7 8a3 3 0 100-6 3 3 0 000 6zm-2 8h10a1 1 0 01.8.4l-2.4 3.2a1 1 0 01-1.6 0L5.2 16.4A1 1 0 015 16zm7-8H8v6h4V8z" /></svg>
+                        </button>
+                    `;
+                    historyItem.onclick = () => {
+                        chatMessages.innerHTML = '';
+                        addMessage(item.query, true);
+                        addMessage(item.response);
+                    };
+                    historyContainer.appendChild(historyItem);
+                });
+        }
+
+        // Toggle pin
+        window.togglePin = (index) => {
+            store.history[index].pinned = !store.history[index].pinned;
+            store.setHistory([...store.history]);
+        };
+
+        // Export history
+        window.exportHistory = () => {
+            const doc = new jsPDF();
+            doc.setFontSize(16);
+            doc.text('AI Assistant History', 20, 20);
+            let y = 30;
+            store.history.forEach((item, index) => {
+                doc.setFontSize(12);
+                doc.text(`Query ${index + 1}: ${item.query}`, 20, y);
+                y += 10;
+                doc.setFontSize(10);
+                doc.text(item.response.substring(0, 100) + '...', 20, y, { maxWidth: 160 });
+                y += 20;
+            });
+            doc.save('assistant_history.pdf');
+        };
+
+        // Submit query using single API URL: http://localhost:8000/query
+        async function submitQuery() {
+            const query = queryInput.value.trim();
+            const model = modelSelect.value;
+            if (!query) {
+                addMessage('Please enter a query.', false);
+                return;
+            }
+
+            addMessage(query, true);
+            queryInput.value = '';
+            const typingDiv = addMessage('Assistant is typing...', false, true);
+
+            try {
+                const apiUrl = 'http://localhost:8000/query'; // Single API URL
+                console.log(`Sending request to ${apiUrl} with query: ${query}, model: ${model}`);
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, model })
+                });
+
+                typingDiv.remove();
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+                }
+
+                const data = await response.json();
+                addMessage(data.response);
+                store.history.push({ query, response: data.response, pinned: false });
+                store.setHistory([...store.history]);
+            } catch (error) {
+                typingDiv.remove();
+                addMessage(`Error: ${error.message}`, false);
+                console.error('Fetch error details:', error);
+            }
+        }
+
+        // Handle Enter key
+        queryInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') submitQuery();
+        });
+    </script>
+</body>
+</html> -->
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro AI Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #06b6d4;
+            --secondary: #7c3aed;
+            --accent: #84cc16;
+            --bg-dark: #0f172a;
+            --bg-light: #f8fafc;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark), #1e293b);
+            color: #e2e8f0;
+        }
+        .light {
+            background: linear-gradient(135deg, var(--bg-light), #e2e8f0);
+            color: #1e293b;
+        }
+        .chat-message {
+            max-width: 80%;
+            word-wrap: break-word;
+            animation: shrinkIn 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .chat-message:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        .sidebar {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideIn 0.4s ease-out;
+        }
+        .light .sidebar {
+            background: rgba(248, 250, 252, 0.95);
+        }
+        .sidebar.hidden {
+            transform: translateX(-100%);
+            animation: slideOut 0.4s ease-out;
+        }
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 6px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: #64748b;
+            border-radius: 3px;
+        }
+        .light .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+        }
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        .light .glassmorphism {
+            background: rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.2);
+        }
+        .modal {
+            animation: shrinkIn 0.4s ease-out;
+        }
+        .modal.hidden {
+            animation: shrinkOut 0.4s ease-out;
+            opacity: 0;
+        }
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        .typing .dots {
+            display: inline-flex;
+            gap: 4px;
+        }
+        .typing .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: rippleDot 0.8s infinite;
+        }
+        .typing .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        .ripple::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: rippleEffect 0.6s ease-out;
+            top: 50%;
+            left: 50%;
+            transform-origin: center;
+        }
+        @keyframes shrinkIn {
+            from { transform: scale(1.2); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        @keyframes shrinkOut {
+            from { transform: scale(1); opacity: 1; }
+            to { transform: scale(0.8); opacity: 0; }
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-20%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(-20%); opacity: 0; }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        @keyframes rippleEffect {
+            to { transform: scale(4); opacity: 0; }
+        }
+        @keyframes rippleDot {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+        .markdown-body {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #e2e8f0;
+        }
+        .light .markdown-body {
+            color: #1e293b;
+        }
+        .markdown-body h1, .markdown-body h2, .markdown-body h3 {
+            font-weight: 600;
+            margin: 0.5em 0;
+            color: var(--primary);
+        }
+        .light .markdown-body h1, .light .markdown-body h2, .light .markdown-body h3 {
+            color: #0ea5e9;
+        }
+        .markdown-body ul {
+            list-style: disc;
+            margin-left: 1.5em;
+        }
+        .markdown-body code {
+            background: #1e293b;
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            color: var(--accent);
+        }
+        .light .markdown-body code {
+            background: #e2e8f0;
+            color: #15803d;
+        }
+        .markdown-body pre {
+            background: #1e293b;
+            padding: 1em;
+            border-radius: 6px;
+            overflow-x: auto;
+            color: var(--accent);
+        }
+        .light .markdown-body pre {
+            background: #e2e8f0;
+            color: #15803d;
+        }
+        @media (min-width: 768px) {
+            .sidebar.hidden {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar fixed inset-y-0 left-0 w-64 p-4 flex flex-col md:static md:translate-x-0">
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="text-xl font-semibold">Pro AI Assistant</h1>
+            <button id="sidebar-toggle" class="md:hidden" aria-label="Toggle sidebar">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        <button class="ripple bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-2 px-4 rounded-lg mb-4 hover:from-cyan-600 hover:to-blue-600 transition-all pulse" onclick="newChat()">New Chat</button>
+        <div class="mb-4">
+            <input id="history-search" class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 text-white" type="text" placeholder="Search history..." aria-label="Search query history">
+        </div>
+        <h2 class="text-sm font-medium text-gray-400 mb-2">Query History</h2>
+        <ul id="query-history" class="flex-1 overflow-y-auto scrollbar-thin space-y-2" role="listbox" aria-label="Query history"></ul>
+        <div class="mt-4">
+            <button class="w-full ripple bg-gray-700 text-white py-2 rounded-lg hover:bg-gray-600 transition-all" onclick="exportHistory()">Export History (PDF)</button>
+            <button class="w-full ripple bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition-all mt-2" onclick="clearHistory()">Clear History</button>
+            <button id="settings-toggle" class="w-full mt-2 flex items-center gap-2 text-gray-300 hover:text-white" aria-label="Open settings">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 002.573-1.065z"></path>
+                </svg>
+                Settings
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Chat Area -->
+    <main class="flex-1 flex flex-col p-4 md:p-8">
+        <div class="flex-1 max-w-4xl mx-auto w-full">
+            <div id="chat-output" class="flex-1 mb-4 overflow-y-auto scrollbar-thin" role="log" aria-live="polite">
+                <div class="chat-message bg-gray-800 p-4 rounded-lg mb-4 shadow-lg max-w-[80%] mx-auto text-center glassmorphism">
+                    <p>Welcome to Pro AI Assistant! Ask me anything or use voice input.</p>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-4xl mx-auto w-full">
+            <div class="flex flex-col gap-2 glassmorphism p-4 rounded-lg shadow-lg">
+                <textarea id="user-input" class="w-full p-3 bg-transparent rounded-lg resize-none focus:ring-2 focus:ring-cyan-500 outline-none text-white" rows="2" placeholder="Type your query here..." aria-label="User query input"></textarea>
+                <div class="flex justify-between items-center">
+                    <div class="flex gap-2">
+                        <select id="model-select" class="p-2 bg-gray-800 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 text-white" aria-label="Select AI model">
+                            <option value="llama3-8b-8192" title="Versatile: Great for general tasks">LLaMA3 8B (Versatile)</option>
+                            <option value="llama3-70b-8192" title="Reasoning: Ideal for complex problems">LLaMA3 70B (Reasoning)</option>
+                            <option value="gemma2-9b-it" title="Conversational: Best for casual chats">Gemma2 9B (Conversational)</option>
+                            <option value="llama-3.3-70b-versatile" title="Versatile: Enhanced performance">LLaMA 3.3 70B (Versatile)</option>
+                        </select>
+                        <button id="voice-input" class="ripple bg-purple-600 text-white p-2 rounded-lg hover:bg-purple-700 transition-all" aria-label="Voice input">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="clear-chat" class="ripple bg-gray-700 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-all">Clear Chat</button>
+                        <button id="send-query" class="ripple bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-2 px-4 rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all disabled:bg-gray-600 pulse" disabled>Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
+        <div class="glassmorphism rounded-lg p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold">Settings</h2>
+                <button id="settings-close" aria-label="Close settings">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block font-medium mb-2 text-gray-300">Theme</label>
+                    <button id="theme-toggle" class="w-full ripple bg-gray-700 text-white py-2 rounded-lg hover:bg-gray-600 transition-all">Switch to Light Mode</button>
+                </div>
+                <div>
+                    <label class="block font-medium mb-2 text-gray-300">Chat Theme</label>
+                    <select id="chat-theme" class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 text-white">
+                        <option value="neon">Neon (Default)</option>
+                        <option value="classic">Classic</option>
+                        <option value="minimal">Minimal</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-medium mb-2 text-gray-300">Typing Animation</label>
+                    <input type="checkbox" id="typing-animation" class="rounded text-cyan-500 focus:ring-cyan-500" checked>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize settings and session
+        const settings = JSON.parse(localStorage.getItem('settings') || '{}');
+        if (settings.theme === 'light') document.documentElement.classList.add('light');
+        document.getElementById('theme-toggle').textContent = settings.theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode';
+        document.getElementById('typing-animation').checked = settings.typingAnimation !== false;
+        document.getElementById('chat-theme').value = settings.chatTheme || 'neon';
+
+        // Apply chat theme
+        function applyChatTheme(theme) {
+            const chatOutput = document.getElementById('chat-output');
+            chatOutput.className = 'flex-1 mb-4 overflow-y-auto scrollbar-thin';
+            if (theme === 'classic') {
+                chatOutput.classList.add('bg-gray-900', 'light:bg-gray-100');
+            } else if (theme === 'minimal') {
+                chatOutput.classList.add('bg-transparent');
+            } else {
+                chatOutput.classList.add('bg-gradient-to-b', 'from-gray-900', 'to-gray-800', 'light:from-gray-100', 'light:to-gray-200');
+            }
+        }
+        applyChatTheme(settings.chatTheme || 'neon');
+
+        // Sidebar toggle
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('hidden');
+        });
+
+        // Settings modal toggle
+        const settingsModal = document.getElementById('settings-modal');
+        const settingsToggle = document.getElementById('settings-toggle');
+        const settingsClose = document.getElementById('settings-close');
+        settingsToggle.addEventListener('click', () => {
+            settingsModal.classList.remove('hidden');
+        });
+        settingsClose.addEventListener('click', () => {
+            settingsModal.classList.add('hidden');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('light');
+            themeToggle.textContent = document.documentElement.classList.contains('light') ? 'Switch to Dark Mode' : 'Switch to Light Mode';
+            settings.theme = document.documentElement.classList.contains('light') ? 'light' : 'dark';
+            localStorage.setItem('settings', JSON.stringify(settings));
+        });
+
+        // Chat theme selection
+        document.getElementById('chat-theme').addEventListener('change', (e) => {
+            settings.chatTheme = e.target.value;
+            localStorage.setItem('settings', JSON.stringify(settings));
+            applyChatTheme(settings.chatTheme);
+        });
+
+        // Typing animation toggle
+        document.getElementById('typing-animation').addEventListener('change', (e) => {
+            settings.typingAnimation = e.target.checked;
+            localStorage.setItem('settings', JSON.stringify(settings));
+        });
+
+        // Enable/disable send button
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-query');
+        userInput.addEventListener('input', () => {
+            sendButton.disabled = userInput.value.trim() === '';
+        });
+
+        // Voice input
+        document.getElementById('voice-input').addEventListener('click', () => {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.onresult = (event) => {
+                userInput.value = event.results[0][0].transcript;
+                sendButton.disabled = false;
+                sendButton.click();
+            };
+            recognition.onerror = () => {
+                const errorMessage = createMessage('Error', 'Voice input failed. Please try again.', false, '', 'bg-red-600 text-white');
+                document.getElementById('chat-output').appendChild(errorMessage);
+            };
+            recognition.start();
+        });
+
+        // Send query to backend
+        sendButton.addEventListener('click', async () => {
+            const query = userInput.value.trim();
+            if (!query) return;
+            const chatOutput = document.getElementById('chat-output');
+            const userMessage = createMessage('User', query, true);
+            chatOutput.appendChild(userMessage);
+            chatOutput.scrollTop = chatOutput.scrollHeight;
+            saveChat();
+
+            if (document.getElementById('typing-animation').checked) {
+                const typingMessage = document.createElement('div');
+                typingMessage.className = 'chat-message bg-gray-800 p-4 rounded-lg mb-4 shadow-lg max-w-[80%] glassmorphism typing';
+                typingMessage.innerHTML = '<p>AI is typing <span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></p>';
+                chatOutput.appendChild(typingMessage);
+                chatOutput.scrollTop = chatOutput.scrollHeight;
+                setTimeout(async () => {
+                    typingMessage.remove();
+                    await fetchAIResponse(query);
+                }, 1500);
+            } else {
+                await fetchAIResponse(query);
+            }
+            userInput.value = '';
+            sendButton.disabled = true;
+        });
+
+        async function fetchAIResponse(query) {
+            const chatOutput = document.getElementById('chat-output');
+            const model = document.getElementById('model-select').value;
+            try {
+                const response = await fetch('http://localhost:8000/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, model })
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Unknown error');
+                }
+                const data = await response.json();
+                const aiMessage = createMessage('AI', data.response, false, model);
+                chatOutput.appendChild(aiMessage);
+                chatOutput.scrollTop = chatOutput.scrollHeight;
+                addToHistory(query);
+                saveChat();
+            } catch (error) {
+                const errorMessage = createMessage('Error', error.message === 'Too many requests' ? 'Rate limit exceeded (10/minute). Please wait and try again.' : `Error: ${error.message}`, false, '', 'bg-red-600 text-white');
+                chatOutput.appendChild(errorMessage);
+                chatOutput.scrollTop = chatOutput.scrollHeight;
+                saveChat();
+            }
+        }
+
+        function createMessage(sender, text, isUser = false, model = '', errorClass = '') {
+            const message = document.createElement('div');
+            message.className = `chat-message p-4 rounded-lg mb-4 shadow-lg max-w-[80%] relative group glassmorphism ${isUser ? 'bg-gradient-to-r from-purple-500 to-indigo-500 ml-auto' : errorClass || 'bg-gray-800'}`;
+            const formattedText = sender === 'AI' && !errorClass ? marked.parse(text) : text;
+            message.innerHTML = `
+                <div class="${sender === 'AI' && !errorClass ? 'markdown-body' : ''}">${sender}: ${formattedText}</div>
+                ${model ? `<span class="inline-block bg-cyan-600 text-white text-xs px-2 py-1 rounded-full mt-2">${model}</span>` : ''}
+                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 flex gap-1">
+                    <button class="text-gray-300 hover:text-white" onclick="copyMessage(this)" aria-label="Copy message">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    </button>
+                    ${isUser ? `
+                    <button class="text-gray-300 hover:text-white" onclick="editMessage(this)" aria-label="Edit message">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15.828l-5.657 1.414 1.414-5.657L16.414 3.586z"></path></svg>
+                    </button>
+                    <button class="text-gray-300 hover:text-white" onclick="deleteMessage(this)" aria-label="Delete message">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4a1 1 0 011 1v1H9V4a1 1 0 011-1zm-4 4h12"></path></svg>
+                    </button>` : `
+                    <button class="text-gray-300 hover:text-white" onclick="reactMessage(this, 'thumbs-up')" aria-label="Thumbs up">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m0-16v10m0-10L3.24 5.06a1.5 1.5 0 00-1.905 1.905L4 12m3 0l-3 5.035a1.5 1.5 0 001.905 1.905L7 17.794"></path></svg>
+                    </button>
+                    <button class="text-gray-300 hover:text-white" onclick="reactMessage(this, 'thumbs-down')" aria-label="Thumbs down">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.017c.163 0 .326.02.485.06L17 4m0 16V10m0 10l3.76-1.06a1.5 1.5 0 001.905-1.905L20 12m-3 0l3-5.035a1.5 1.5 0 00-1.905-1.905L17 6.206"></path></svg>
+                    </button>`}
+                </div>`;
+            return message;
+        }
+
+        function reactMessage(button, reaction) {
+            const existing = button.querySelector('span');
+            if (existing) {
+                existing.remove();
+            } else {
+                const span = document.createElement('span');
+                span.className = 'text-xs text-lime-400';
+                span.textContent = reaction === 'thumbs-up' ? '👍' : '👎';
+                button.appendChild(span);
+            }
+            saveChat();
+        }
+
+        function addToHistory(query) {
+            const history = JSON.parse(localStorage.getItem('queryHistory') || '[]');
+            history.unshift({ query, timestamp: new Date().toISOString() });
+            localStorage.setItem('queryHistory', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory(filter = '') {
+            const history = JSON.parse(localStorage.getItem('queryHistory') || '[]');
+            const historyList = document.getElementById('query-history');
+            historyList.innerHTML = '';
+            history
+                .filter(item => item.query.toLowerCase().includes(filter.toLowerCase()))
+                .forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'p-2 bg-gray-800 rounded-lg text-gray-300 hover:bg-gray-700 cursor-pointer transition-all';
+                    li.setAttribute('role', 'option');
+                    li.innerHTML = `${item.query}<span class="text-xs text-gray-500 block">${new Date(item.timestamp).toLocaleString()}</span>`;
+                    li.onclick = () => loadChat(item.query);
+                    historyList.appendChild(li);
+                });
+        }
+
+        function copyMessage(button) {
+            const text = button.parentElement.parentElement.querySelector('div').textContent.replace(/^[^:]+: /, '');
+            navigator.clipboard.writeText(text);
+            alert('Message copied!');
+        }
+
+        function editMessage(button) {
+            const message = button.parentElement.parentElement;
+            const text = message.querySelector('div').textContent.replace('User: ', '');
+            userInput.value = text;
+            message.remove();
+            sendButton.disabled = false;
+            saveChat();
+        }
+
+        function deleteMessage(button) {
+            button.parentElement.parentElement.remove();
+            saveChat();
+        }
+
+        function newChat() {
+            document.getElementById('chat-output').innerHTML = `
+                <div class="chat-message bg-gray-800 p-4 rounded-lg mb-4 shadow-lg max-w-[80%] mx-auto text-center glassmorphism">
+                    <p>Welcome to Pro AI Assistant! Ask me anything or use voice input.</p>
+                </div>`;
+            userInput.value = '';
+            sendButton.disabled = true;
+            localStorage.removeItem('chatSession');
+        }
+
+        function loadChat(query) {
+            userInput.value = query;
+            sendButton.disabled = false;
+            sendButton.click();
+        }
+
+        function clearHistory() {
+            localStorage.removeItem('queryHistory');
+            renderHistory();
+        }
+
+        function exportHistory() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFont('Inter', 'normal');
+            doc.setTextColor(0, 0, 0);
+            doc.text('Query History', 10, 10);
+            const history = JSON.parse(localStorage.getItem('queryHistory') || '[]');
+            history.forEach((item, i) => {
+                doc.text(`${new Date(item.timestamp).toLocaleString()}: ${item.query}`, 10, 20 + i * 10);
+            });
+            doc.save('query_history.pdf');
+        }
+
+        function saveChat() {
+            const messages = [...document.querySelectorAll('#chat-output .chat-message')].map(m => {
+                const text = m.querySelector('div').textContent;
+                const sender = text.split(': ')[0];
+                const content = text.split(': ').slice(1).join(': ');
+                return {
+                    sender,
+                    text: content,
+                    isUser: m.classList.contains('ml-auto'),
+                    model: m.querySelector('span')?.textContent || '',
+                    error: m.classList.contains('bg-red-600'),
+                    reaction: m.querySelector('.text-lime-400')?.textContent || ''
+                };
+            });
+            localStorage.setItem('chatSession', JSON.stringify(messages));
+        }
+
+        function loadChatSession() {
+            const messages = JSON.parse(localStorage.getItem('chatSession') || '[]');
+            const chatOutput = document.getElementById('chat-output');
+            chatOutput.innerHTML = '';
+            messages.forEach(m => {
+                const message = createMessage(
+                    m.sender,
+                    m.text,
+                    m.isUser,
+                    m.model,
+                    m.error ? 'bg-red-600 text-white' : ''
+                );
+                if (m.reaction) {
+                    const button = message.querySelector(`[aria-label="${m.reaction === '👍' ? 'Thumbs up' : 'Thumbs down'}"]`);
+                    if (button) {
+                        const span = document.createElement('span');
+                        span.className = 'text-xs text-lime-400';
+                        span.textContent = m.reaction;
+                        button.appendChild(span);
+                    }
+                }
+                chatOutput.appendChild(message);
+            });
+            chatOutput.scrollTop = chatOutput.scrollHeight;
+        }
+
+        // History search
+        document.getElementById('history-search').addEventListener('input', (e) => {
+            renderHistory(e.target.value);
+        });
+
+        // Keyboard navigation for history
+        document.getElementById('query-history').addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                const items = [...document.querySelectorAll('#query-history li')];
+                const current = document.activeElement;
+                const index = items.indexOf(current);
+                const nextIndex = e.key === 'ArrowDown' ? index + 1 : index - 1;
+                if (items[nextIndex]) items[nextIndex].focus();
+            }
+        });
+
+        // Initialize
+        renderHistory();
+        loadChatSession();
+    </script>
+</body>
+</html>
